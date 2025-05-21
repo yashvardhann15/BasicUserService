@@ -1,7 +1,7 @@
 package com.project.userservicejwt.Service;
 
 import com.project.userservicejwt.DTO.LoginDTO;
-import com.project.userservicejwt.DTO.UserDTO;
+import com.project.userservicejwt.DTO.UserRegisterDTO;
 import com.project.userservicejwt.Exceptions.UserAlreadyExistsException;
 import com.project.userservicejwt.Exceptions.UserNotFoundException;
 import com.project.userservicejwt.Projections.UserProjection;
@@ -10,6 +10,7 @@ import com.project.userservicejwt.models.User;
 import com.project.userservicejwt.repositories.RoleRepository;
 import com.project.userservicejwt.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,6 +29,12 @@ public class UserServiceJWT implements UserService {
     private RoleRepository roleRepository;
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     private JWTService jwtService;
+//    @Autowired
+//    private RedisTemplate<String, String> redisTemplate;
+
+    @Autowired
+    private RedisService redisService;
+
 
     @Autowired
     AuthenticationManager authenticationManager;
@@ -40,14 +47,14 @@ public class UserServiceJWT implements UserService {
     }
 
     @Override
-    public ResponseEntity<?> registerUser(UserDTO userDTO){
-        String name = userDTO.getName();
-        String email = userDTO.getEmail();
+    public ResponseEntity<?> registerUser(UserRegisterDTO userRegisterDTO){
+        String name = userRegisterDTO.getName();
+        String email = userRegisterDTO.getEmail();
         email.toLowerCase();
-        String password = userDTO.getPassword();
+        String password = userRegisterDTO.getPassword();
         String encodedPassword = bCryptPasswordEncoder.encode(password);
 
-        List<Role> roles = userDTO.getRoles().stream()
+        List<Role> roles = userRegisterDTO.getRoles().stream()
                 .map(roleName -> roleRepository.findByValue(roleName)
                         .orElseThrow(() -> new RuntimeException("Role not found: " + roleName)))
                 .collect(Collectors.toList());
@@ -82,12 +89,19 @@ public class UserServiceJWT implements UserService {
         }
     }
 
+
+
     @Override
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = userRepository.findAll();
         if (users.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
+
+//        redisTemplate.opsForValue().set("healthCheckKey", "connected");
+//        String value = redisTemplate.opsForValue().get("salary");
+//
+//        System.out.println("✅ Redis is working. Value retrieved: " + value);
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
@@ -123,11 +137,21 @@ public class UserServiceJWT implements UserService {
     @Override
     public ResponseEntity<UserProjection> getUser(String email) {
         if(email == "") return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        UserProjection user = redisService.get("user:" + email , UserProjection.class);
+
+        if(user != null){
+            System.out.println("val : " + user);
+            return new ResponseEntity<>(user , HttpStatus.OK);
+        }
+
         Optional<User> res = userRepository.findByEmail(email);
-        if(res == null) return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        if (!res.isPresent()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
         else{
             UserProjection result = new UserProjection();
             result = result.makeProjection(res.get());
+            redisService.set("user:" + email , result , 100L);
             return new ResponseEntity<>(result , HttpStatus.OK);
         }
     }

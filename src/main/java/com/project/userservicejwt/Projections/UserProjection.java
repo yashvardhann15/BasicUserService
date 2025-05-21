@@ -16,7 +16,7 @@ public class UserProjection {
     private String email;
     private List<RoleProjection> roles;
 
-    public UserProjection makeProjection(User user){
+    public static UserProjection makeProjection(User user){
         UserProjection userProjection = new UserProjection();
         userProjection.setName(user.getName());
         userProjection.setEmail(user.getEmail());

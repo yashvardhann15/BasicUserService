@@ -1,12 +1,10 @@
 package com.project.userservicejwt.Controller;
 
 import com.project.userservicejwt.DTO.LoginDTO;
-import com.project.userservicejwt.DTO.UserDTO;
+import com.project.userservicejwt.DTO.UserRegisterDTO;
 import com.project.userservicejwt.Projections.UserProjection;
 import com.project.userservicejwt.Service.UserService;
 import com.project.userservicejwt.models.User;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +22,7 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody UserDTO user) {
+    public ResponseEntity<?> register(@RequestBody UserRegisterDTO user) {
         ResponseEntity<?> response = userService.registerUser(user);
         if(response.getStatusCode() == HttpStatus.CONFLICT){
             return new ResponseEntity<>("User with this email already exists" , HttpStatus.CONFLICT);

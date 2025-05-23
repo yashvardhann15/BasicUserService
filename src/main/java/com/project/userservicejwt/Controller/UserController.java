@@ -39,25 +39,6 @@ public class UserController {
         return new ResponseEntity<>("BAD CREDENTIALS" , HttpStatus.UNAUTHORIZED);
     }
 
-
-    @GetMapping("/allusers")
-    public ResponseEntity<List<User>> getAllUsers() {
-        ResponseEntity<List<User>> users = userService.getAllUsers();
-        if(users.getStatusCode() == HttpStatus.NO_CONTENT) return new ResponseEntity<>(null , HttpStatus.NO_CONTENT);
-        return new ResponseEntity<>(users.getBody(), HttpStatus.OK);
-    }
-
-    @PostMapping("/addrole")
-    public ResponseEntity<String> addRole(@RequestParam String value) {
-        ResponseEntity<String> response =  userService.addRole(value);
-
-        if(response.getStatusCode() == HttpStatus.OK){
-            return new ResponseEntity<>("Role added" , HttpStatus.OK);
-        }
-
-        return new ResponseEntity<>(response.getBody() , response.getStatusCode());
-    }
-
     @GetMapping("/u")
     public ResponseEntity<UserProjection> getUser(@RequestParam String email){
         ResponseEntity<UserProjection> response = userService.getUser(email);

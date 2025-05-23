@@ -5,6 +5,9 @@ import com.project.userservicejwt.DTO.UserRegisterDTO;
 import com.project.userservicejwt.Exceptions.UserAlreadyExistsException;
 import com.project.userservicejwt.Exceptions.UserNotFoundException;
 import com.project.userservicejwt.Projections.UserProjection;
+import com.project.userservicejwt.Token.Token;
+import com.project.userservicejwt.Token.TokenRepository;
+import com.project.userservicejwt.Token.TokenType;
 import com.project.userservicejwt.models.Role;
 import com.project.userservicejwt.models.User;
 import com.project.userservicejwt.repositories.RoleRepository;
@@ -34,6 +37,9 @@ public class UserServiceJWT implements UserService {
 
     @Autowired
     private RedisService redisService;
+
+    @Autowired
+    TokenRepository tokenRepository;
 
 
     @Autowired
@@ -82,6 +88,19 @@ public class UserServiceJWT implements UserService {
 
         if(auth.isAuthenticated()){
             String jwtToken = jwtService.generateToken(email);
+
+            Token token = Token.builder()
+                    .user(res.get())
+                    .token(jwtToken)
+                    .tokenType(TokenType.BEARER)
+                    .expired(false)
+                    .revoked(false)
+                    .build();
+
+            revokeAllUserTokens(res.get());
+
+            tokenRepository.save(token);
+
             return new ResponseEntity<>(jwtToken, HttpStatus.OK);
         }
         else{
@@ -89,6 +108,21 @@ public class UserServiceJWT implements UserService {
         }
     }
 
+
+    private void revokeAllUserTokens(User user){
+        List<Token> validUserTokens = tokenRepository.findAllValidTokensByUser(user.getEmail());
+
+        if(validUserTokens.isEmpty()){
+            return;
+        }
+
+        for(int i = 0 ; i < validUserTokens.size() ; i++){
+            Token token = validUserTokens.get(i);
+            token.setExpired(true);
+            token.setRevoked(true);
+            tokenRepository.save(token);
+        }
+    }
 
 
     @Override

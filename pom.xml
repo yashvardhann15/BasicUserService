@@ -101,6 +101,13 @@
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.dmfs/http-client-headers -->
+        <dependency>
+            <groupId>org.dmfs</groupId>
+            <artifactId>http-client-headers</artifactId>
+            <version>0.10.3</version>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>

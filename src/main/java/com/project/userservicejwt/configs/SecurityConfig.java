@@ -41,7 +41,7 @@ public class SecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/user/register", "/user/login").permitAll()  // Permit access to these endpoints
+                        .requestMatchers("/user/register", "/user/login" , "/oauth2/**" , "/auth/google/callback").permitAll()  // Permit access to these endpoints
                         .anyRequest().authenticated()                       // All others need authentication
                 )
                 .httpBasic(Customizer.withDefaults())                   // Enable Basic Auth

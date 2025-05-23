@@ -2,6 +2,7 @@ package com.project.userservicejwt.configs;
 
 import com.project.userservicejwt.Service.JWTService;
 import com.project.userservicejwt.Service.MyUserDetailsService;
+import com.project.userservicejwt.Token.TokenRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,7 +26,10 @@ public class JwtFilter extends OncePerRequestFilter {
     private JWTService jwtService;
 
     @Autowired
-    ApplicationContext context;
+    private ApplicationContext context;
+
+    @Autowired
+    private TokenRepository tokenRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -40,7 +44,12 @@ public class JwtFilter extends OncePerRequestFilter {
 
         if(email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = context.getBean(MyUserDetailsService.class).loadUserByUsername(email);
-            if(jwtService.validateToken(token, userDetails)){
+
+            var isValidToken = tokenRepository.findByToken(token)
+                    .map(t -> !t.isExpired() && !t.isRevoked())
+                    .orElse(false);
+
+            if(jwtService.validateToken(token, userDetails) && isValidToken) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails , null , userDetails.getAuthorities());
 
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

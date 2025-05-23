@@ -1,5 +1,6 @@
 package com.project.userservicejwt.configs;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,19 +12,23 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     @Autowired
     private UserDetailsService userDetailsService;
     private BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final LogoutHandler logoutHandler;
 
     @Autowired
     public void setPasswordEncoder(UserDetailsService userDetailsService , BCryptPasswordEncoder bCryptPasswordEncoder) {
@@ -34,11 +39,9 @@ public class SecurityConfig {
     @Autowired
     private JwtFilter jwtFilter;
 
-
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        return http
+        http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/user/register", "/user/login" , "/oauth2/**" , "/auth/google/callback").permitAll()  // Permit access to these endpoints
@@ -48,8 +51,15 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS) // No sessions
                 )
-                .addFilterBefore(jwtFilter , UsernamePasswordAuthenticationFilter.class)
-                .build();
+                .addFilterBefore(jwtFilter , UsernamePasswordAuthenticationFilter.class);
+
+        http.logout(logout -> logout
+                .logoutUrl("/user/logout")
+                .addLogoutHandler(logoutHandler)
+                .logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext())
+        );
+
+        return http.build();
     }
 
     @Bean

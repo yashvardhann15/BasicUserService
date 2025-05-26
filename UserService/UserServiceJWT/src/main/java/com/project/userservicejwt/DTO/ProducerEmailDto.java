@@ -1,4 +1,4 @@
-package com.project.emailservice.DTO;
+package com.project.userservicejwt.DTO;
 
 import lombok.Getter;
 import lombok.Setter;

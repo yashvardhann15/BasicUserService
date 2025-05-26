@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: EmailService
+#pkc-l7pr2.ap-south-1.aws.confluent.cloud:9092
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: my-consumer-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+
+      properties:
+        spring.json.trusted.packages: com.project.emailservice.DTO
+        spring.json.value.default.type: com.project.emailservice.DTO.SendEmailDto
+
+#    properties:
+#      security.protocol: SASL_SSL
+#      sasl.mechanism: PLAIN
+#      sasl.jaas.config: >
+#        org.apache.kafka.common.security.plain.PlainLoginModule required
+#        username='FUHSHE5C2O3ATBF2'
+#        password='+WNvqloMLAxnZ7cV78mTw0lT5VIq5XrHNd+E6/2MW7tHHhK4KkSDSnY109cehLRn';
+#      session.timeout.ms: 45000
+
+  config:
+    import: optional:configserver:http://localhost:8888
+
+server:
+  port: 8081
+
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+client:
+  id: ccloud-springboot-client-06c2f560-46d1-4939-962f-70ae6b18a4ce

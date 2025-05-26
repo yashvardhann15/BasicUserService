@@ -2,10 +2,12 @@ package com.project.emailservice.Consumer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.project.emailservice.DTO.SendEmailDto;
+import com.project.emailservice.DTO.ConsumerEmailDto;
 import com.project.emailservice.Utils.EmailUtil;
+import lombok.NoArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.stereotype.Component;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.stereotype.Service;
 
 import java.util.Properties;
 
@@ -13,17 +15,12 @@ import javax.mail.Authenticator;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 
-@Component
+@Service
+@NoArgsConstructor
 public class SendEmailEventConsumers{
 
-    private ObjectMapper mapper;
-
-    public SendEmailEventConsumers(ObjectMapper mapper){
-        this.mapper = mapper;
-    }
-    @KafkaListener(topics = "E-Mails" , groupId = "emailService")
-    public void handleSendEmailEvent(String message) throws JsonProcessingException {
-        SendEmailDto emailDto = mapper.readValue(message , SendEmailDto.class);
+    @KafkaListener(topics = "E-Mails" , groupId = "my-consumer-group")
+    public void handleSendEmailEvent(@Payload ConsumerEmailDto emailDto) throws JsonProcessingException {
 
         String to = emailDto.getEmail();
         String subject = emailDto.getSubject();
@@ -33,8 +30,8 @@ public class SendEmailEventConsumers{
 
 
         //Sending to
-        final String fromEmail = System.getenv("MAIL"); //requires valid gmail id
-        final String password = System.getenv("PASS"); // correct password for gmail id
+        final String fromEmail = "yashvardhann15@gmail.com"; //requires valid gmail id
+        final String password = "cqfr cfhb hvcx lmjb"; // correct password for gmail id
 
 
         System.out.println("TLSEmail Start");

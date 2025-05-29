@@ -1,8 +1,7 @@
 package com.project.userservicejwt.Service;
 
-import com.project.userservicejwt.DTO.EmailDto;
-import com.project.userservicejwt.DTO.LoginDTO;
-import com.project.userservicejwt.DTO.UserRegisterDTO;
+import com.project.userservicejwt.DTO.*;
+import com.project.userservicejwt.Exceptions.InvalidOrExpiredOTPException;
 import com.project.userservicejwt.Exceptions.UserAlreadyExistsException;
 import com.project.userservicejwt.Exceptions.UserNotFoundException;
 import com.project.userservicejwt.Projections.UserProjection;
@@ -38,25 +37,19 @@ public class UserServiceImpl implements UserService {
     private JWTService jwtService;
     private OtpService otpService;
     private KafkaService kafkaService;
-//    @Autowired
-//    private RedisTemplate<String, String> redisTemplate;
-
-    @Autowired
     private RedisService redisService;
-
-    @Autowired
-    TokenRepository tokenRepository;
-
-    @Autowired
+    private TokenRepository tokenRepository;
     AuthenticationManager authenticationManager;
     @Autowired
-    public UserServiceImpl(UserRepository userRepository , RoleRepository roleRepository , BCryptPasswordEncoder bCryptPasswordEncoder , JWTService jwtService , OtpService otpService , KafkaService kafkaService ) {
+    public UserServiceImpl(UserRepository userRepository , RoleRepository roleRepository , BCryptPasswordEncoder bCryptPasswordEncoder , JWTService jwtService , OtpService otpService , RedisService redisService , TokenRepository tokenRepository , AuthenticationManager authenticationManager , KafkaService kafkaService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.jwtService = jwtService;
         this.otpService = otpService;
-//        this.kafkaTemplate = kafkaTemplate;
+        this.redisService = redisService;
+        this.authenticationManager = authenticationManager;
+        this.tokenRepository = tokenRepository;
         this.kafkaService = kafkaService;
     }
 
@@ -72,12 +65,7 @@ public class UserServiceImpl implements UserService {
             throw new UserAlreadyExistsException();
         }
 
-        List<Role> roles = userRegisterDTO.getRoles().stream()
-                .map(roleName -> roleRepository.findByValue(roleName)
-                        .orElseThrow(() -> new RuntimeException("Role not found: " + roleName)))
-                .collect(Collectors.toList());
-
-        String otp = otpService.generateAndStoreOtp(email);
+        String otp = otpService.generateAndStoreOtp(userRegisterDTO);
 
 //        EmailDto emailDTO = new EmailDto();
 //        emailDTO.setEmail(email);
@@ -92,6 +80,31 @@ public class UserServiceImpl implements UserService {
 
         return ResponseEntity.ok("OTP sent to email");
     }
+
+    @Override
+    public ResponseEntity<?> registerUserComp(UserRegisterVerifyDTO user) {
+        String email = user.getEmail().toLowerCase();
+        String OTP = user.getOtp();
+
+        RegisterOtpCacheDTO userDetails = otpService.verifyOtp(email, OTP);
+
+        if(userDetails == null){
+            throw new InvalidOrExpiredOTPException();
+        }
+
+        String password = userDetails.getPassword();
+        String encodedPassword = bCryptPasswordEncoder.encode(password);
+
+        List<Role> roles = userDetails.getRoles().stream()
+                .map(roleName -> roleRepository.findByValue(roleName)
+                        .orElseThrow(() -> new RuntimeException("Role not found: " + roleName)))
+                .collect(Collectors.toList());
+
+        User newUser = new User(userDetails.getName() , email, encodedPassword, roles);
+        userRepository.save(newUser);
+        return new ResponseEntity<>(UserProjection.makeProjection(newUser), HttpStatus.OK);
+    }
+
 
     public ResponseEntity<?> login(LoginDTO user){
         String email = user.getEmail();

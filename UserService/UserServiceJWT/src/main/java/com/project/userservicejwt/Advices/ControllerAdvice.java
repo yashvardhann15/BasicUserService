@@ -1,5 +1,6 @@
 package com.project.userservicejwt.Advices;
 
+import com.project.userservicejwt.Exceptions.InvalidOrExpiredOTPException;
 import com.project.userservicejwt.Exceptions.UserAlreadyExistsException;
 import com.project.userservicejwt.Exceptions.UserNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -17,5 +18,10 @@ public class ControllerAdvice {
     @ExceptionHandler
     public ResponseEntity<String> userNotFound(UserNotFoundException ex) {
         return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<String> invalidOrExpiredOTP(InvalidOrExpiredOTPException ex) {
+        return new ResponseEntity<>("OTP is either invalid or Expired, Retry", HttpStatus.FORBIDDEN);
     }
 }

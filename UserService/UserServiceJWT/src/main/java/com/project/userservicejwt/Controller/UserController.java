@@ -2,6 +2,7 @@ package com.project.userservicejwt.Controller;
 
 import com.project.userservicejwt.DTO.LoginDTO;
 import com.project.userservicejwt.DTO.UserRegisterDTO;
+import com.project.userservicejwt.DTO.UserRegisterVerifyDTO;
 import com.project.userservicejwt.Projections.UserProjection;
 import com.project.userservicejwt.Service.UserService;
 import com.project.userservicejwt.models.User;
@@ -21,13 +22,22 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/register")
+    @PostMapping("/register-init")
     public ResponseEntity<?> register(@RequestBody UserRegisterDTO user) {
         ResponseEntity<?> response = userService.registerUser(user);
         if(response.getStatusCode() == HttpStatus.CONFLICT){
             return new ResponseEntity<>("User with this email already exists" , HttpStatus.CONFLICT);
         }
         return new ResponseEntity<>("Email sent successfully." , HttpStatus.OK);
+    }
+
+    @PostMapping("/register-complete")
+    public ResponseEntity<?> registerComplete(@RequestBody UserRegisterVerifyDTO user) {
+        ResponseEntity<?> response = userService.registerUserComp(user);
+        if(response.getStatusCode() != HttpStatus.OK){
+            return new ResponseEntity<>("Oops! Something went wrong..." , HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(response.getBody() , HttpStatus.OK);
     }
 
     @PostMapping("/login")

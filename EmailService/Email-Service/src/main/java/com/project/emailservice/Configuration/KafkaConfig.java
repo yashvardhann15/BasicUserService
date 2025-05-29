@@ -1,10 +1,8 @@
-package com.project.emailservice;
+package com.project.emailservice.Configuration;
 
 import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.config.TopicBuilder;
-import org.springframework.kafka.support.converter.StringJsonMessageConverter;
-import org.springframework.kafka.support.converter.RecordMessageConverter;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration

@@ -3,6 +3,7 @@ package com.project.userservicejwt.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.userservicejwt.Projections.UserProjection;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -12,7 +13,8 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class RedisService {
     @Autowired
-    private RedisTemplate redisTemplate;
+    @Qualifier("redisTemplateString")
+    private RedisTemplate<String, String> redisTemplate;
 
     public <T> T get(String key, Class<T> clazz) {
         try {

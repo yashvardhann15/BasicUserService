@@ -1,11 +1,13 @@
 package com.project.userservicejwt.DTO;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.List;
 
+@Getter
+@Setter
 public class UserRegisterVerifyDTO {
-    private String name;
     private String email;
-    private String password;
-    private List<String> roles;
     private String otp;
 }

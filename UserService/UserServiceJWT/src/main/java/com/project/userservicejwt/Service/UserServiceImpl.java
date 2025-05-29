@@ -55,25 +55,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity<?> registerUser(UserRegisterDTO userRegisterDTO){
-//        String name = userRegisterDTO.getName();
         String email = userRegisterDTO.getEmail().toLowerCase();
-//        email.toLowerCase();
-//        String password = userRegisterDTO.getPassword();
-//        String encodedPassword = bCryptPasswordEncoder.encode(password);
 
         if(userRepository.findByEmail(email).isPresent()){
             throw new UserAlreadyExistsException();
         }
 
         String otp = otpService.generateAndStoreOtp(userRegisterDTO);
-
-//        EmailDto emailDTO = new EmailDto();
-//        emailDTO.setEmail(email);
-//        emailDTO.setSubject("OTP Verification");
-//        emailDTO.setBody("This is your OTP for verifying your email" + otp + "This OTP is valid for 5 minutes. Do not share this OTP with anyone. Kindly ignore this email if you have not requested this OTP.");
-
-        String subject = "OTP Verification";
-        String body = "This is your OTP for verifying your email: " + otp + " This OTP is valid for 5 minutes. Do not share this OTP with anyone. Kindly ignore this email if you have not requested this OTP.";
+    String subject = "OTP Verification";
+        String body = "This is your OTP for verifying your email:\n" + otp + "\nThis OTP is valid for 5 minutes. \n\n Do not share this OTP with anyone. Kindly ignore this email if you have not requested this OTP.";
         String message = email + " /BREAK/ " + subject + " /BREAK/ " + body;
 
         kafkaService.sendEmail(message);
@@ -102,6 +92,12 @@ public class UserServiceImpl implements UserService {
 
         User newUser = new User(userDetails.getName() , email, encodedPassword, roles);
         userRepository.save(newUser);
+
+        String subject = "Registration Successful.";
+        String body = "Welcome " + userDetails.getName()  + ", to Career Connect. \n\n" + "We're happy to inform you that your registration was successful.\n\n" + "You can now log in and start using your account.\n\n" + "If this wasn't you, please ignore this email or get in touch with our support team.\n\n" + "Warm regards,\n" + "The Career Connect Team";
+        String msg = email + " /BREAK/ " + subject + " /BREAK/ " + body;
+        kafkaService.sendEmail(msg);
+
         return new ResponseEntity<>(UserProjection.makeProjection(newUser), HttpStatus.OK);
     }
 

@@ -23,29 +23,19 @@ public class SendEmailEventConsumers{
 
         String[] parts = msg.split(" /BREAK/ ");
 
-        System.out.println(msg);
-        System.out.println();
-        for (String part : parts) {
-            System.out.println(part);
-        }
-
         if (parts.length < 3) {
             System.err.println("Invalid email message received: " + msg);
-            return; // Or log and skip
+            return;
         }
 
         String to = parts[0].trim();
         String subject = parts[1].trim();
         String body = parts[2].trim();
 
-        System.out.println("email: " + to);
-        System.out.println("otp: " + subject);
-        System.out.println("body: " + body);
-
 
         //Sending to
-        final String fromEmail = "yashvardhann15@gmail.com";
-        final String password = "vxjq xqnt btpo xbze";
+        final String fromEmail = "";
+        final String password = "";
 
         System.out.println("TLSEmail Start");
         Properties props = new Properties();

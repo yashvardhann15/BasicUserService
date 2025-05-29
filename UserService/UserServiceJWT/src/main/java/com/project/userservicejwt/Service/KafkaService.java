@@ -18,16 +18,9 @@ public class KafkaService {
 
     public void sendEmail(String msg) {
     try {
-        Message<String> message = MessageBuilder
-                .withPayload(msg)
-                .setHeader(KafkaHeaders.TOPIC, "emailService")
-                .build();
-
-
-        log.info("Sending email : {}", msg);
-        kafkaTemplate.send(message);
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
+        kafkaTemplate.send("emails", msg);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

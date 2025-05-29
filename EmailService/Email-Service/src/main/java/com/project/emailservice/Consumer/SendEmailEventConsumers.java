@@ -23,6 +23,17 @@ public class SendEmailEventConsumers{
 
         String[] parts = msg.split(" /BREAK/ ");
 
+        System.out.println(msg);
+        System.out.println();
+        for (String part : parts) {
+            System.out.println(part);
+        }
+
+        if (parts.length < 3) {
+            System.err.println("Invalid email message received: " + msg);
+            return; // Or log and skip
+        }
+
         String to = parts[0].trim();
         String subject = parts[1].trim();
         String body = parts[2].trim();
@@ -33,19 +44,18 @@ public class SendEmailEventConsumers{
 
 
         //Sending to
-        final String fromEmail = "yashvardhann15@gmail.com"; //requires valid gmail id
-        final String password = "cqfr cfhb hvcx lmjb"; // correct password for gmail id
+        final String fromEmail = "yashvardhann15@gmail.com";
+        final String password = "vxjq xqnt btpo xbze";
 
         System.out.println("TLSEmail Start");
         Properties props = new Properties();
-        props.put("mail.smtp.host", "smtp.gmail.com"); //SMTP Host
-        props.put("mail.smtp.port", "587"); //TLS Port
-        props.put("mail.smtp.auth", "true"); //enable authentication
-        props.put("mail.smtp.starttls.enable", "true"); //enable STARTTLS
+        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.port", "587");
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
 
-        //create Authenticator object to pass in Session.getInstance argument
         Authenticator auth = new Authenticator() {
-            //override the getPasswordAuthentication method
+
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(fromEmail, password);
             }

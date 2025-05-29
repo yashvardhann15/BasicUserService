@@ -63,8 +63,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<?> registerUser(UserRegisterDTO userRegisterDTO){
 //        String name = userRegisterDTO.getName();
-        String email = userRegisterDTO.getEmail();
-        email.toLowerCase();
+        String email = userRegisterDTO.getEmail().toLowerCase();
+//        email.toLowerCase();
 //        String password = userRegisterDTO.getPassword();
 //        String encodedPassword = bCryptPasswordEncoder.encode(password);
 
@@ -84,7 +84,9 @@ public class UserServiceImpl implements UserService {
 //        emailDTO.setSubject("OTP Verification");
 //        emailDTO.setBody("This is your OTP for verifying your email" + otp + "This OTP is valid for 5 minutes. Do not share this OTP with anyone. Kindly ignore this email if you have not requested this OTP.");
 
-        String message = email + " /BREAK/ " + "OTP Verification" + " /BREAK/ " + "This is your OTP for verifying your email: " + otp + " This OTP is valid for 5 minutes. Do not share this OTP with anyone. Kindly ignore this email if you have not requested this OTP.";
+        String subject = "OTP Verification";
+        String body = "This is your OTP for verifying your email: " + otp + " This OTP is valid for 5 minutes. Do not share this OTP with anyone. Kindly ignore this email if you have not requested this OTP.";
+        String message = email + " /BREAK/ " + subject + " /BREAK/ " + body;
 
         kafkaService.sendEmail(message);
 

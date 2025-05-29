@@ -27,7 +27,7 @@ public class UserController {
         if(response.getStatusCode() == HttpStatus.CONFLICT){
             return new ResponseEntity<>("User with this email already exists" , HttpStatus.CONFLICT);
         }
-        return new ResponseEntity<>("User Created Successfully" , HttpStatus.OK);
+        return new ResponseEntity<>("Email sent successfully." , HttpStatus.OK);
     }
 
     @PostMapping("/login")

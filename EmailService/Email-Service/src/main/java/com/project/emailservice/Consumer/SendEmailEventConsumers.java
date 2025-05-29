@@ -1,8 +1,7 @@
 package com.project.emailservice.Consumer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.project.emailservice.DTO.ConsumerEmailDto;
+import com.project.emailservice.DTO.EmailDto;
 import com.project.emailservice.Utils.EmailUtil;
 import lombok.NoArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -19,20 +18,23 @@ import javax.mail.Session;
 @NoArgsConstructor
 public class SendEmailEventConsumers{
 
-    @KafkaListener(topics = "E-Mails" , groupId = "my-consumer-group")
-    public void handleSendEmailEvent(@Payload ConsumerEmailDto emailDto) throws JsonProcessingException {
+    @KafkaListener(topics = "emails" , groupId = "emailService")
+    public void handleSendEmailEvent(@Payload String msg) throws JsonProcessingException {
 
-        String to = emailDto.getEmail();
-        String subject = emailDto.getSubject();
-        String body = emailDto.getBody();
+        String[] parts = msg.split(" /BREAK/ ");
 
+        String to = parts[0].trim();
+        String subject = parts[1].trim();
+        String body = parts[2].trim();
 
+        System.out.println("email: " + to);
+        System.out.println("otp: " + subject);
+        System.out.println("body: " + body);
 
 
         //Sending to
         final String fromEmail = "yashvardhann15@gmail.com"; //requires valid gmail id
         final String password = "cqfr cfhb hvcx lmjb"; // correct password for gmail id
-
 
         System.out.println("TLSEmail Start");
         Properties props = new Properties();
@@ -53,7 +55,4 @@ public class SendEmailEventConsumers{
         EmailUtil.sendEmail(session, to, subject, body);
 
     }
-
-
-
 }

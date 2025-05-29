@@ -1,5 +1,6 @@
 package com.project.userservicejwt.Service;
 
+import com.project.userservicejwt.DTO.EmailDto;
 import com.project.userservicejwt.DTO.LoginDTO;
 import com.project.userservicejwt.DTO.UserRegisterDTO;
 import com.project.userservicejwt.Exceptions.UserAlreadyExistsException;
@@ -12,10 +13,13 @@ import com.project.userservicejwt.models.Role;
 import com.project.userservicejwt.models.User;
 import com.project.userservicejwt.repositories.RoleRepository;
 import com.project.userservicejwt.repositories.UserRepository;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -32,6 +36,8 @@ public class UserServiceImpl implements UserService {
     private RoleRepository roleRepository;
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     private JWTService jwtService;
+    private OtpService otpService;
+    private KafkaService kafkaService;
 //    @Autowired
 //    private RedisTemplate<String, String> redisTemplate;
 
@@ -44,35 +50,45 @@ public class UserServiceImpl implements UserService {
     @Autowired
     AuthenticationManager authenticationManager;
     @Autowired
-    public UserServiceImpl(UserRepository userRepository , RoleRepository roleRepository , BCryptPasswordEncoder bCryptPasswordEncoder , JWTService jwtService) {
+    public UserServiceImpl(UserRepository userRepository , RoleRepository roleRepository , BCryptPasswordEncoder bCryptPasswordEncoder , JWTService jwtService , OtpService otpService , KafkaService kafkaService ) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.jwtService = jwtService;
+        this.otpService = otpService;
+//        this.kafkaTemplate = kafkaTemplate;
+        this.kafkaService = kafkaService;
     }
 
     @Override
     public ResponseEntity<?> registerUser(UserRegisterDTO userRegisterDTO){
-        String name = userRegisterDTO.getName();
+//        String name = userRegisterDTO.getName();
         String email = userRegisterDTO.getEmail();
         email.toLowerCase();
-        String password = userRegisterDTO.getPassword();
-        String encodedPassword = bCryptPasswordEncoder.encode(password);
+//        String password = userRegisterDTO.getPassword();
+//        String encodedPassword = bCryptPasswordEncoder.encode(password);
+
+        if(userRepository.findByEmail(email).isPresent()){
+            throw new UserAlreadyExistsException();
+        }
 
         List<Role> roles = userRegisterDTO.getRoles().stream()
                 .map(roleName -> roleRepository.findByValue(roleName)
                         .orElseThrow(() -> new RuntimeException("Role not found: " + roleName)))
                 .collect(Collectors.toList());
 
+        String otp = otpService.generateAndStoreOtp(email);
 
-        if(userRepository.findByEmail(email).isPresent()){
-            throw new UserAlreadyExistsException();
-        }
+//        EmailDto emailDTO = new EmailDto();
+//        emailDTO.setEmail(email);
+//        emailDTO.setSubject("OTP Verification");
+//        emailDTO.setBody("This is your OTP for verifying your email" + otp + "This OTP is valid for 5 minutes. Do not share this OTP with anyone. Kindly ignore this email if you have not requested this OTP.");
 
+        String message = email + " /BREAK/ " + "OTP Verification" + " /BREAK/ " + "This is your OTP for verifying your email: " + otp + " This OTP is valid for 5 minutes. Do not share this OTP with anyone. Kindly ignore this email if you have not requested this OTP.";
 
-        User user = new User(name, email, encodedPassword, roles);
-        userRepository.save(user);
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        kafkaService.sendEmail(message);
+
+        return ResponseEntity.ok("OTP sent to email");
     }
 
     public ResponseEntity<?> login(LoginDTO user){

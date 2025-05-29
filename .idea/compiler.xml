@@ -19,7 +19,7 @@
         </processorPath>
         <module name="UserServiceJWT" />
       </profile>
-      <profile name="Annotation profile for EmailService" enabled="true">
+      <profile name="Annotation profile for ServiceDiscovery" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -27,8 +27,8 @@
           <entry name="$MAVEN_REPOSITORY$/org/springframework/boot/spring-boot-configuration-processor/3.4.4/spring-boot-configuration-processor-3.4.4.jar" />
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar" />
         </processorPath>
-        <module name="EmailService" />
         <module name="ServiceDiscovery" />
+        <module name="EmailService" />
       </profile>
     </annotationProcessing>
   </component>

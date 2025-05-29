@@ -8,8 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
-public class ProducerEmailDto {
+public class EmailDto {
     private String email;
     private String subject;
     private String body;

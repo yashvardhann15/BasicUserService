@@ -1,11 +1,11 @@
-package com.project.userservicejwt.DTO;
+package com.project.emailservice.DTO;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class SendEmailDto {
+public class EmailDto {
     private String email;
     private String subject;
     private String body;

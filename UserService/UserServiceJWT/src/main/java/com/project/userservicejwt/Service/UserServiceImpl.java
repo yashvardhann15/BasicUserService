@@ -12,13 +12,9 @@ import com.project.userservicejwt.models.Role;
 import com.project.userservicejwt.models.User;
 import com.project.userservicejwt.repositories.RoleRepository;
 import com.project.userservicejwt.repositories.UserRepository;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import org.apache.kafka.clients.producer.KafkaProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -124,7 +120,7 @@ public class UserServiceImpl implements UserService {
                     .revoked(false)
                     .build();
 
-            revokeAllUserTokens(res.get());
+            revokeUserTokens(res.get());
 
             tokenRepository.save(token);
 
@@ -136,18 +132,20 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    private void revokeAllUserTokens(User user){
+    private void revokeUserTokens(User user){
         List<Token> validUserTokens = tokenRepository.findAllValidTokensByUser(user.getEmail());
 
         if(validUserTokens.isEmpty()){
             return;
         }
 
-        for(int i = 0 ; i < validUserTokens.size() ; i++){
-            Token token = validUserTokens.get(i);
-            token.setExpired(true);
-            token.setRevoked(true);
-            tokenRepository.save(token);
+        if(validUserTokens.size() >= 3) {
+            for (int i = 0; i < validUserTokens.size() - 3; i++) {
+                Token token = validUserTokens.get(i);
+                token.setExpired(true);
+                token.setRevoked(true);
+                tokenRepository.save(token);
+            }
         }
     }
 

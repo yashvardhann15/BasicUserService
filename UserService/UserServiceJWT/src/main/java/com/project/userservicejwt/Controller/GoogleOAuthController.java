@@ -110,5 +110,5 @@ public class GoogleOAuthController {
     }
 }
 
-
+//https://www.googleapis.com/auth/userinfo.email
 //https://accounts.gogle.com/o/oauth2/auth? (frontend api)

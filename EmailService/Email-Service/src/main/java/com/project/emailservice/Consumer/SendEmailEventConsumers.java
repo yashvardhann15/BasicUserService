@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.project.emailservice.DTO.EmailDto;
 import com.project.emailservice.Utils.EmailUtil;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,12 @@ import javax.mail.Session;
 @Service
 @NoArgsConstructor
 public class SendEmailEventConsumers{
+
+//    @Value("${sending.email}")
+    final String fromEmail = "yashvardhann15@gmail.com" ;
+//    @Value("${sending.email.password}")
+    final String password = "emfb beuk nvbs kwog";
+
 
     @KafkaListener(topics = "emails" , groupId = "emailService")
     public void handleSendEmailEvent(@Payload String msg) throws JsonProcessingException {
@@ -34,8 +41,6 @@ public class SendEmailEventConsumers{
 
 
         //Sending to
-        final String fromEmail = "";
-        final String password = "";
 
         System.out.println("TLSEmail Start");
         Properties props = new Properties();

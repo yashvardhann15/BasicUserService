@@ -21,4 +21,4 @@ public class EmailServiceApplication {
 //
 //kafka-console-producer.bat --broker-list localhost:9092 --topic my-topic
 //
-//kafka-console-consumer.bat --bootstrap-server localhost:9092 --topic my-topic --from-beginning
+//kafka-console-consumer.bat --bootstrap-server localhost:9092 --topic emails --from-beginning

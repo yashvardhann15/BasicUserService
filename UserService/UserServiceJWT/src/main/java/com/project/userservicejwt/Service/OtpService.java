@@ -15,8 +15,7 @@ import java.util.concurrent.TimeUnit;
 public class OtpService {
 
     @Autowired
-    @Qualifier("redisTemplateObject")
-    private RedisTemplate<String, RegisterOtpCacheDTO> redisTemplate;
+    private RedisTemplate<String, Object> redisTemplate;
 
     public String generateAndStoreOtp(UserRegisterDTO user) {
         String otp = String.valueOf(new Random().nextInt(899999) + 100000);
@@ -31,7 +30,8 @@ public class OtpService {
 
     public RegisterOtpCacheDTO verifyOtp(String email, String otp) {
         String key = "OTP_" + email;
-        RegisterOtpCacheDTO storedOtp = redisTemplate.opsForValue().get(key);
+        Object cachedOtp = redisTemplate.opsForValue().get(key);
+        RegisterOtpCacheDTO storedOtp = (RegisterOtpCacheDTO) cachedOtp;
 
         if (storedOtp != null && storedOtp.getOtp().equals(otp)) {
             redisTemplate.delete(key);

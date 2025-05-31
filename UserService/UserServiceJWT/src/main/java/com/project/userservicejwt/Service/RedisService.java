@@ -13,8 +13,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class RedisService {
     @Autowired
-    @Qualifier("redisTemplateString")
-    private RedisTemplate<String, String> redisTemplate;
+    private RedisTemplate<String, Object> redisTemplate;
 
     public <T> T get(String key, Class<T> clazz) {
         try {

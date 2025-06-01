@@ -11,7 +11,9 @@ spring:
       auto-offset-reset:earliest:
 
   config:
-    import: optional:configserver:http://localhost:8888
+    import:
+      - optional:configserver:http://localhost:8888
+#      - optional:file:.env
 
 server:
   port: 8081

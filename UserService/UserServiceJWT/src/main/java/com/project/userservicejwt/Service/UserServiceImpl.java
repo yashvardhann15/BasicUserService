@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -156,11 +157,6 @@ public class UserServiceImpl implements UserService {
         if (users.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-
-//        redisTemplate.opsForValue().set("healthCheckKey", "connected");
-//        String value = redisTemplate.opsForValue().get("salary");
-//
-//        System.out.println("✅ Redis is working. Value retrieved: " + value);
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
@@ -210,7 +206,7 @@ public class UserServiceImpl implements UserService {
         else{
             UserProjection result = new UserProjection();
             result = result.makeProjection(res.get());
-            redisService.set("user:" + email , result , 100L);
+            redisService.set("user:" + email , result , 100L , TimeUnit.MINUTES);
             return new ResponseEntity<>(result , HttpStatus.OK);
         }
     }

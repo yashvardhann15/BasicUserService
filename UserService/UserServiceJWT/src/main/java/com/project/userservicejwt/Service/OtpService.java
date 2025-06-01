@@ -15,7 +15,8 @@ import java.util.concurrent.TimeUnit;
 public class OtpService {
 
     @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
+    private RedisService redisService;
+//    private RedisTemplate<String, Object> redisTemplate;
 
     public String generateAndStoreOtp(UserRegisterDTO user) {
         String otp = String.valueOf(new Random().nextInt(899999) + 100000);
@@ -23,18 +24,23 @@ public class OtpService {
         RegisterOtpCacheDTO cacheDTO = new RegisterOtpCacheDTO(user);
         cacheDTO.setOtp(otp);
 
-        redisTemplate.delete("OTP_" + cacheDTO.getEmail());
-        redisTemplate.opsForValue().set("OTP_" + cacheDTO.getEmail(), cacheDTO, 5, TimeUnit.MINUTES);
+//        redisTemplate.delete("OTP_" + cacheDTO.getEmail());
+        redisService.remove("OTP_" + cacheDTO.getEmail());
+        redisService.set("OTP_" + cacheDTO.getEmail() , cacheDTO , 5L , TimeUnit.MINUTES);
+
+        System.out.println(redisService.get("OTP_" + cacheDTO.getEmail() , RegisterOtpCacheDTO.class));
+//        redisTemplate.opsForValue().set("OTP_" + cacheDTO.getEmail(), cacheDTO, 5, TimeUnit.MINUTES);
         return otp;
     }
 
     public RegisterOtpCacheDTO verifyOtp(String email, String otp) {
         String key = "OTP_" + email;
-        Object cachedOtp = redisTemplate.opsForValue().get(key);
-        RegisterOtpCacheDTO storedOtp = (RegisterOtpCacheDTO) cachedOtp;
+        RegisterOtpCacheDTO storedOtp = redisService.get(key , RegisterOtpCacheDTO.class);
+
+        System.out.println(storedOtp);
 
         if (storedOtp != null && storedOtp.getOtp().equals(otp)) {
-            redisTemplate.delete(key);
+            redisService.remove(key);
             return storedOtp;
         }
         return null;

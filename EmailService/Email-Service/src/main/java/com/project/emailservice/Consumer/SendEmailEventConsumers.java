@@ -19,10 +19,11 @@ import javax.mail.Session;
 @NoArgsConstructor
 public class SendEmailEventConsumers{
 
-//    @Value("${sending.email}")
-    final String fromEmail = "yashvardhann15@gmail.com" ;
-//    @Value("${sending.email.password}")
-    final String password = "emfb beuk nvbs kwog";
+    @Value("${sending-email}")
+    private String fromEmail;
+    @Value("${sending-email-password}")
+    private String password;
+
 
 
     @KafkaListener(topics = "emails" , groupId = "emailService")
@@ -38,6 +39,8 @@ public class SendEmailEventConsumers{
         String to = parts[0].trim();
         String subject = parts[1].trim();
         String body = parts[2].trim();
+
+        System.out.println(password);
 
 
         //Sending to

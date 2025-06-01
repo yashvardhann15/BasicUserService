@@ -29,11 +29,11 @@ public class LogoutService implements LogoutHandler {
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         String authHeader = request.getHeader("Authorization");
-        String token = null;
+        String token = authHeader.substring(7);
         String email = jwtService.extractUserName(token);
 
         if(authHeader != null && authHeader.startsWith("Bearer ")) {
-            token = authHeader.substring(7);
+//            token = authHeader.substring(7);
 
 //            Token storedToken = tokenRepository.findByToken(token)
 //                    .orElse(null);

@@ -10,15 +10,6 @@
         <module name="APiGatewayService" />
         <module name="ConfigServer" />
       </profile>
-      <profile name="Annotation profile for UserServiceJWT" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
-        </processorPath>
-        <module name="UserServiceJWT" />
-      </profile>
       <profile name="Annotation profile for ServiceDiscovery" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
@@ -29,6 +20,15 @@
         </processorPath>
         <module name="ServiceDiscovery" />
         <module name="EmailService" />
+      </profile>
+      <profile name="Annotation profile for UserServiceJWT" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
+        </processorPath>
+        <module name="UserServiceJWT" />
       </profile>
     </annotationProcessing>
   </component>

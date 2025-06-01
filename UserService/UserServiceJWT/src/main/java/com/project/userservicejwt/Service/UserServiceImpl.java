@@ -1,12 +1,12 @@
 package com.project.userservicejwt.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.userservicejwt.DTO.*;
 import com.project.userservicejwt.Exceptions.InvalidOrExpiredOTPException;
 import com.project.userservicejwt.Exceptions.UserAlreadyExistsException;
 import com.project.userservicejwt.Exceptions.UserNotFoundException;
 import com.project.userservicejwt.Projections.UserProjection;
 import com.project.userservicejwt.Token.Token;
-import com.project.userservicejwt.Token.TokenRepository;
 import com.project.userservicejwt.Token.TokenType;
 import com.project.userservicejwt.models.Role;
 import com.project.userservicejwt.models.User;
@@ -21,6 +21,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -35,10 +36,10 @@ public class UserServiceImpl implements UserService {
     private OtpService otpService;
     private KafkaService kafkaService;
     private RedisService redisService;
-    private TokenRepository tokenRepository;
+
     AuthenticationManager authenticationManager;
     @Autowired
-    public UserServiceImpl(UserRepository userRepository , RoleRepository roleRepository , BCryptPasswordEncoder bCryptPasswordEncoder , JWTService jwtService , OtpService otpService , RedisService redisService , TokenRepository tokenRepository , AuthenticationManager authenticationManager , KafkaService kafkaService) {
+    public UserServiceImpl(UserRepository userRepository , RoleRepository roleRepository , BCryptPasswordEncoder bCryptPasswordEncoder , JWTService jwtService , OtpService otpService , RedisService redisService , AuthenticationManager authenticationManager , KafkaService kafkaService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
@@ -46,7 +47,6 @@ public class UserServiceImpl implements UserService {
         this.otpService = otpService;
         this.redisService = redisService;
         this.authenticationManager = authenticationManager;
-        this.tokenRepository = tokenRepository;
         this.kafkaService = kafkaService;
     }
 
@@ -114,16 +114,29 @@ public class UserServiceImpl implements UserService {
             String jwtToken = jwtService.generateToken(email);
 
             Token token = Token.builder()
-                    .user(res.get())
+//                    .user(res.get())
                     .token(jwtToken)
                     .tokenType(TokenType.BEARER)
                     .expired(false)
                     .revoked(false)
                     .build();
 
-            revokeUserTokens(res.get());
+            List<?> rawList = redisService.get("TOKEN_" + email, List.class);
+            List<Token> tokens = new ArrayList<>();
 
-            tokenRepository.save(token);
+            if (rawList != null) {
+                ObjectMapper mapper = new ObjectMapper();
+                tokens = rawList.stream()
+                        .map(item -> mapper.convertValue(item, Token.class))
+                        .collect(Collectors.toList());
+            }
+
+            tokens.add(token);
+
+            redisService.remove("TOKEN_" + email);
+            redisService.set("TOKEN_" + user.getEmail() , tokens , 60L , TimeUnit.MINUTES);
+
+            revokeUserTokens(res.get());
 
             return new ResponseEntity<>(jwtToken, HttpStatus.OK);
         }
@@ -134,20 +147,31 @@ public class UserServiceImpl implements UserService {
 
 
     private void revokeUserTokens(User user){
-        List<Token> validUserTokens = tokenRepository.findAllValidTokensByUser(user.getEmail());
+
+        List<?> rawList = redisService.get("TOKEN_" + user.getEmail(), List.class);
+        List<Token> validUserTokens = new ArrayList<>();
+
+        if (rawList != null) {
+            ObjectMapper mapper = new ObjectMapper();
+            validUserTokens = rawList.stream()
+                    .map(item -> mapper.convertValue(item, Token.class))
+                    .collect(Collectors.toList());
+        }
 
         if(validUserTokens.isEmpty()){
             return;
         }
 
-        if(validUserTokens.size() >= 3) {
-            for (int i = 0; i < validUserTokens.size() - 3; i++) {
-                Token token = validUserTokens.get(i);
-                token.setExpired(true);
-                token.setRevoked(true);
-                tokenRepository.save(token);
-            }
+        for (int i = 0; i < validUserTokens.size() - 3; i++) {
+            Token token = validUserTokens.get(i);
+            token.setExpired(true);
+            token.setRevoked(true);
         }
+
+        if(validUserTokens.size() > 3) validUserTokens.subList(0, validUserTokens.size() - 3).clear();
+
+        redisService.remove("TOKEN_" + user.getEmail());
+        redisService.set("TOKEN_" + user.getEmail() , validUserTokens , 60L , TimeUnit.MINUTES);
     }
 
 

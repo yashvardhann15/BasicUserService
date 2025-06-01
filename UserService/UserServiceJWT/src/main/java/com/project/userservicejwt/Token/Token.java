@@ -28,7 +28,7 @@ public class Token {
     private boolean expired;
     private boolean revoked;
 
-    @ManyToOne
-    private User user;
+//    @ManyToOne
+//    private User user;
 }
 

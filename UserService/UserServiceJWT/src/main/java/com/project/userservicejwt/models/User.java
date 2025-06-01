@@ -27,8 +27,8 @@ public class User extends BaseModel {
     @ManyToMany
     private Set<Role> roles;
 
-    @OneToMany(mappedBy = "user")
-    private List<Token> tokens;
+//    @OneToMany(mappedBy = "user")
+//    private List<Token> tokens;
 
     public User(String name, String email, String password, List<Role> roles) {
         this.name = name;

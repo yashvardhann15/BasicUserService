@@ -1,13 +1,10 @@
 package com.project.userservicejwt.models;
 
-import com.project.userservicejwt.Token.Token;
-import com.project.userservicejwt.repositories.UserRepository;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashSet;
 import java.util.List;

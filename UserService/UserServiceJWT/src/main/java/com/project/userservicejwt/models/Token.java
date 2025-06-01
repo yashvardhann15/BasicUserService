@@ -1,6 +1,5 @@
-package com.project.userservicejwt.Token;
+package com.project.userservicejwt.models;
 
-import com.project.userservicejwt.models.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -11,7 +10,6 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
 public class Token {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

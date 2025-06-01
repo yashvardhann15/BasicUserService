@@ -1,9 +1,7 @@
-package com.project.userservicejwt.configs;
+package com.project.userservicejwt.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.project.userservicejwt.Service.JWTService;
-import com.project.userservicejwt.Service.RedisService;
-import com.project.userservicejwt.Token.Token;
+import com.project.userservicejwt.models.Token;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

@@ -12,7 +12,7 @@ spring:
         - id: USERSERVICEJWT
           uri: lb://UserServiceJWT
           predicates:
-            - Path=/user/**
+            - Path=/user/**,/admin/**,/auth/google/**
 server:
   port: 8082
 eureka:

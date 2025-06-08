@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: APiGatewayService
+  config:
+    import: optional:configserver:http://localhost:8888
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: USERSERVICEJWT
+          uri: lb://UserServiceJWT
+          predicates:
+            - Path=/user/**
+server:
+  port: 8082
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+

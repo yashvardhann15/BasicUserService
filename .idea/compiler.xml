@@ -10,6 +10,15 @@
         <module name="APiGatewayService" />
         <module name="ConfigServer" />
       </profile>
+      <profile name="Annotation profile for UserServiceJWT" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
+        </processorPath>
+        <module name="UserServiceJWT" />
+      </profile>
       <profile name="Annotation profile for ServiceDiscovery" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
@@ -21,20 +30,15 @@
         <module name="ServiceDiscovery" />
         <module name="EmailService" />
       </profile>
-      <profile name="Annotation profile for UserServiceJWT" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
-        </processorPath>
-        <module name="UserServiceJWT" />
-      </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="Article" target="17" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="APiGatewayService" options="-parameters" />
+      <module name="Article" options="-parameters" />
       <module name="ConfigServer" options="-parameters" />
       <module name="EmailService" options="-parameters" />
       <module name="ServiceDiscovery" options="-parameters" />

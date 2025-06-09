@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: EmailService
+
+  kafka:
+    consumer:
+      bootstrap-servers: localhost:9092
+      group-id: emailService
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      auto-offset-reset:earliest:
+server:
+  port: 8081
+
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+client:
+  id: ccloud-springboot-client-06c2f560-46d1-4939-962f-70ae6b18a4ce
+
+sending-email: ${SENDINGEMAIL}
+sending-email-password: ${SENDINGEMAILPASSWORD}

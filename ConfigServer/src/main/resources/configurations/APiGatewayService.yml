@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: APiGatewayService
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: USERSERVICEJWT
+          uri: lb://UserServiceJWT
+          predicates:
+            - Path=/user/**,/admin/**,/auth/google/**
+server:
+  port: 8082
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+
